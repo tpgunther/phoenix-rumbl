@@ -4,7 +4,7 @@ defmodule Rumbl.VideoController do
   alias Rumbl.Video
 
   def index(conn, _params, user) do
-    videos = Repo.all(Video)
+    videos = Repo.all(assoc(user, :videos))
     render(conn, "index.html", videos: videos)
   end
 
@@ -33,19 +33,19 @@ defmodule Rumbl.VideoController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    video = Repo.get!(Video, id)
+  def show(conn, %{"id" => id}, user) do
+    video = Repo.get!(assoc(user, :videos), id)
     render(conn, "show.html", video: video)
   end
 
-  def edit(conn, %{"id" => id}) do
-    video = Repo.get!(Video, id)
+  def edit(conn, %{"id" => id}, user) do
+    video = Repo.get!(assoc(user, :videos), id)
     changeset = Video.changeset(video)
     render(conn, "edit.html", video: video, changeset: changeset)
   end
 
-  def update(conn, %{"id" => id, "video" => video_params}) do
-    video = Repo.get!(Video, id)
+  def update(conn, %{"id" => id, "video" => video_params}, user) do
+    video = Repo.get!(assoc(user, :videos), id)
     changeset = Video.changeset(video, video_params)
 
     case Repo.update(changeset) do
@@ -58,8 +58,8 @@ defmodule Rumbl.VideoController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    video = Repo.get!(Video, id)
+  def delete(conn, %{"id" => id}, user) do
+    video = Repo.get!(assoc(user, :videos), id)
 
     # Here we use delete! (with a bang) because we expect
     # it to always work (and if it does not, it will raise).
@@ -73,4 +73,5 @@ defmodule Rumbl.VideoController do
   def action(conn, _) do
     apply(__MODULE__, action_name(conn), [conn, conn.params, conn.assigns.current_user])
   end
+
 end
